@@ -14,7 +14,7 @@ def input_error(func):
         except KeyError:
             return "No such name found"
         except IndexError:
-            return "Not found"
+            return "No argument"
 
     return inner
 
@@ -115,13 +115,12 @@ class AddressBook(UserDict):
 
     def find(self, name):
         return self.data.get(name)
-
-    def delete(self, name):
-        if not self.data.pop(name, None):
-            raise NameError("Contact not found")
-        else:
-            print("Delete!")
+        
     
+    def delete(self, name):
+        if name in self.data:
+            return self.data.pop(name)
+
     def get_upcoming_birthdays(self):
         tdate = dtdt.today().date()
         birthdays = []
@@ -172,9 +171,9 @@ def change_contact(args, book):
         return "Contact changed."
     return "Not found"
 
-@input_error
-def all_contact(book):
-   return str(book) if book else "Not found"
+# @input_error
+# def all_contact(book):
+#    return str(book) if book else "Not contacts in your notebook "
 
 
 @input_error
@@ -229,20 +228,21 @@ class UserInterface(ABC):
             
 class ConsoleInterface(UserInterface):
     def display_command(self, list_command):
-        dict_command = {number+1: command for number, command in enumerate(list_command)}
+        # dict_command = {number+1: command for number, command in enumerate(list_command)}
         print("Chose command: ")
-        for key, value in dict_command.items():
+        for key, value in list_command.items():
             print(f"{key}: {value[0]} -> {value[1]}")
 
-    def delete_contact(self,args,book):
+    @input_error
+    def delete_contact(self, args, book):
         name = args[0]
-        record = book.delete(name)
-        if record:
-            return "Contact delete."
-        return "Not found"
+        if book.delete(name):
+            return "Contact deleted."
+        else:
+            return "Not found contact"
 
     def display_contact(self, contacts):
-        print(str(contacts) if contacts else "Not found")
+        print(str(contacts) if contacts else "Not contacts in notebook")
     
     def display_message(self,message):
         print(message)
@@ -250,16 +250,18 @@ class ConsoleInterface(UserInterface):
         
 
 def main(interface:UserInterface):
-    list_command = [['hello','Display welcome message.'],
-                    ['add','[name] [phone]: Add a new contact.'], 
-                    ['change','[name] [phone]: Add a new contact.'],
-                    ['phone','[name]: Display the phone number of a contact.'],
-                    ['all','Display all contacts.'],
-                    ['add-birthday','[name] [date]: Add birthday to a contact.'],
-                    ['show-birthday','[name]: Show birthday of a contact.'],
-                    ['birthdays','Show upcoming birthdays.'],
-                    ['exit or close','Show upcoming birthdays.'],
-                    ['delete', 'Delete contact']]
+    list_command = {
+        1:('hello','Display welcome message.'),
+        2:('add','[name] [phone]: Add a new contact.'), 
+        3:('change','[name] [phone]: Add a new contact.'),
+        4:('phone','[name]: Display the phone number of a contact.'),
+        5:('all','Display all contacts.'),
+        6:('add-birthday','[name] [date]: Add birthday to a contact.'),
+        7:('show-birthday','[name]: Show birthday of a contact.'),
+        8:('birthdays','Show upcoming birthdays.'),
+        9:('exit or close','Show upcoming birthdays.'),
+        10:('delete', 'Delete contact')
+    }
     book = load_data()
     print("Welcome to the assistant bot! --all command -> command 'help'-- ")
     interface.display_command(list_command)
@@ -275,7 +277,7 @@ def main(interface:UserInterface):
             interface.display_command(list_command)
         
         elif command == "delete":
-            interface.delete_contact(args,book)
+            interface.display_message(interface.delete_contact(args, book))
 
         elif command in ["hello",1]:
             interface.display_message("How can I help you?")
@@ -290,8 +292,7 @@ def main(interface:UserInterface):
             interface.display_message(show_phone(args, book))
 
         elif command in ["all",5]:
-            contact = all_contact(book)
-            interface.display_contact(contact)
+            interface.display_contact(book)
 
         elif command in ["add-birthday",6]:
             interface.display_message(add_birthday(args,book))
