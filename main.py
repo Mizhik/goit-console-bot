@@ -307,3 +307,27 @@ def main(interface:UserInterface):
 
 if __name__ == "__main__":
     main(ConsoleInterface())
+
+
+"""
+list_command = {
+    1: ('hello', 'Display welcome message.'),
+    2: ('add', '[name] [phone]: Add a new contact.'),
+    3: ('change', '[name] [phone]: Add a new contact.'),
+    4: ('phone', '[name]: Display the phone number of a contact.'),
+    5: ('all', 'Display all contacts.'),
+    6: ('add-birthday', '[name] [date]: Add birthday to a contact.'),
+    7: ('show-birthday', '[name]: Show birthday of a contact.'),
+    8: ('birthdays', 'Show upcoming birthdays.'),
+    9: ('exit or close', 'Show upcoming birthdays.'),
+    10: ('delete', 'Delete contact')
+}
+while True:
+    try:
+        command = int(input('Enter number: '))
+        result = list_command[command]
+        print(result[1])
+    except KeyError:
+        print("Invalid command.")
+
+"""    
